@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Profile - PulseGym{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+    <div class="profile-header">
+        <div class="profile-avatar">
+            <i class="fas fa-user-circle"></i>
+        </div>
+        <h1>{{ user.first_name }} {{ user.last_name }}</h1>
+        <p class="profile-email">{{ user.email }}</p>
+    </div>
+
+    <div class="profile-stats">
+        <div class="stat-card">
+            <i class="fas fa-venus-mars"></i>
+            <span class="stat-value">{{ profile.get_gender_display|default:'Not set' }}</span>
+            <span class="stat-label">Gender</span>
+        </div>
+        <div class="stat-card">
+            <i class="fas fa-birthday-cake"></i>
+            <span class="stat-value">{{ profile.age|default:'--' }}</span>
+            <span class="stat-label">Age</span>
+        </div>
+        <div class="stat-card">
+            <i class="fas fa-ruler-vertical"></i>
+            <span class="stat-value">{{ profile.height|default:'--' }} cm</span>
+            <span class="stat-label">Height</span>
+        </div>
+        <div class="stat-card">
+            <i class="fas fa-weight"></i>
+            <span class="stat-value">{{ profile.weight|default:'--' }} kg</span>
+            <span class="stat-label">Weight</span>
+        </div>
+    </div>
+
+    <div class="profile-info">
+        <div class="info-card">
+            <h3><i class="fas fa-bullseye"></i> Fitness Goal</h3>
+            <p>{{ profile.get_goal_display|default:'Not set' }}</p>
+        </div>
+        <div class="info-card">
+            <h3><i class="fas fa-running"></i> Activity Level</h3>
+            <p>{{ profile.get_activity_level_display|default:'Not set' }}</p>
+        </div>
+    </div>
+
+    <div class="profile-actions">
+        <a href="{% url 'profile_edit' %}" class="btn btn-primary">
+            <i class="fas fa-edit"></i> Edit Profile
+        </a>
+        <a href="{% url 'logout' %}" class="btn btn-outline">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
+    </div>
+</div>
+{% endblock %}
