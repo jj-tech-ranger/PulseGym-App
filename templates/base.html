@@ -1,0 +1,50 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}PulseGym{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <a href="{% url 'home' %}" class="navbar-brand">
+            <i class="fas fa-heartbeat"></i> PulseGym
+        </a>
+        <div class="nav-links">
+            {% if user.is_authenticated %}
+            <a href="{% url 'home' %}"><i class="fas fa-home"></i></a>
+            <a href="{% url 'workouts:list' %}"><i class="fas fa-dumbbell"></i></a>
+            <a href="{% url 'nutrition:meals' %}"><i class="fas fa-utensils"></i></a>
+            <a href="{% url 'profile' %}"><i class="fas fa-user"></i></a>
+            {% else %}
+            <a href="{% url 'login' %}" class="btn btn-outline">Login</a>
+            {% endif %}
+        </div>
+    </nav>
+
+    <!-- Messages -->
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Main Content -->
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2025 PulseGym. All rights reserved.</p>
+    </footer>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
