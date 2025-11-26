@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Workout Categories - PulseGym{% endblock %}
+
+{% block content %}
+<div class="category-container">
+    <header class="page-header">
+        <h1>Workout Categories</h1>
+        <p class="subtitle">Choose your fitness level</p>
+    </header>
+    
+    <div class="category-grid">
+        {% for category in categories %}
+        <div class="category-card {{ category.level }}">
+            <div class="category-header">
+                <div class="category-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M6.5 6.5h11M6.5 17.5h11M4 12h16"/>
+                    </svg>
+                </div>
+                <span class="level-badge">{{ category.get_level_display }}</span>
+            </div>
+            <h2>{{ category.name }}</h2>
+            <p>{{ category.description|default:"Explore exercises" }}</p>
+            <div class="exercise-count">{{ category.exercises.count }} exercises</div>
+            
+            <div class="exercise-list">
+                {% for exercise in category.exercises.all|slice:":3" %}
+                <a href="{% url 'workouts:video_player' exercise.pk %}" class="exercise-item">
+                    <span class="exercise-title">{{ exercise.title }}</span>
+                    <span class="exercise-duration">{{ exercise.duration }} min</span>
+                </a>
+                {% empty %}
+                <p class="no-exercises">No exercises yet</p>
+                {% endfor %}
+            </div>
+            
+            {% if category.exercises.count > 3 %}
+            <a href="#" class="view-all-btn">View all {{ category.exercises.count }} exercises</a>
+            {% endif %}
+        </div>
+        {% empty %}
+        <p class="no-categories">No categories available yet.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
