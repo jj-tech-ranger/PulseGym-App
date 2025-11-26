@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Select Gender - PulseGym{% endblock %}
+
+{% block content %}
+<div class="onboarding-container">
+    <div class="onboarding-progress">
+        <div class="progress-bar">
+            <div class="progress-fill" style="width: 25%;"></div>
+        </div>
+        <span class="step-indicator">Step {{ step }} of 4</span>
+    </div>
+
+    <div class="onboarding-header">
+        <h1>What's your gender?</h1>
+        <p>This helps us personalize your fitness experience</p>
+    </div>
+
+    <form method="post" class="onboarding-form">
+        {% csrf_token %}
+        
+        <div class="gender-cards">
+            <label class="gender-card" for="male">
+                <input type="radio" name="gender" id="male" value="male" {% if form.gender.value == 'male' %}checked{% endif %}>
+                <div class="card-content">
+                    <i class="fas fa-mars gender-icon"></i>
+                    <span class="gender-label">Male</span>
+                </div>
+            </label>
+
+            <label class="gender-card" for="female">
+                <input type="radio" name="gender" id="female" value="female" {% if form.gender.value == 'female' %}checked{% endif %}>
+                <div class="card-content">
+                    <i class="fas fa-venus gender-icon"></i>
+                    <span class="gender-label">Female</span>
+                </div>
+            </label>
+        </div>
+
+        <div class="onboarding-actions">
+            <button type="submit" class="btn btn-primary btn-full">
+                Continue <i class="fas fa-arrow-right"></i>
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
