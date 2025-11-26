@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Select Age - PulseGym{% endblock %}
+
+{% block content %}
+<div class="onboarding-container">
+    <div class="onboarding-progress">
+        <div class="progress-bar">
+            <div class="progress-fill" style="width: 50%;"></div>
+        </div>
+        <span class="step-indicator">Step {{ step }} of 4</span>
+    </div>
+
+    <div class="onboarding-header">
+        <h1>How old are you?</h1>
+        <p>This helps us customize your workout intensity</p>
+    </div>
+
+    <form method="post" class="onboarding-form">
+        {% csrf_token %}
+        
+        <div class="age-selector">
+            <div class="age-display">
+                <span id="age-value">25</span>
+                <span class="age-unit">years old</span>
+            </div>
+            
+            <input type="range" name="age" id="age-slider" class="slider-input" 
+                   min="13" max="100" value="{{ form.age.value|default:25 }}"
+                   oninput="document.getElementById('age-value').textContent = this.value">
+            
+            <div class="slider-labels">
+                <span>13</span>
+                <span>100</span>
+            </div>
+        </div>
+
+        <div class="onboarding-actions">
+            <a href="{% url 'onboarding_gender' %}" class="btn btn-outline">
+                <i class="fas fa-arrow-left"></i> Back
+            </a>
+            <button type="submit" class="btn btn-primary">
+                Continue <i class="fas fa-arrow-right"></i>
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const slider = document.getElementById('age-slider');
+    const ageValue = document.getElementById('age-value');
+    ageValue.textContent = slider.value;
+});
+</script>
+{% endblock %}
