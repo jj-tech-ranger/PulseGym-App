@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block title %}{{ exercise.title }} - PulseGym{% endblock %}
+{% block content %}
+<div class="video-player-container">
+    <div class="video-wrapper">
+        {% if exercise.video_url %}
+        <iframe src="{{ exercise.video_url }}" frameborder="0" allowfullscreen></iframe>
+        {% else %}
+        <div class="video-placeholder"><p>Video coming soon</p></div>
+        {% endif %}
+    </div>
+    <div class="exercise-info">
+        <div class="exercise-header">
+            <h1>{{ exercise.title }}</h1>
+            <button class="bookmark-btn {% if is_bookmarked %}bookmarked{% endif %}" data-exercise-id="{{ exercise.pk }}" onclick="toggleBookmark(this)">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="{% if is_bookmarked %}currentColor{% else %}none{% endif %}" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
+                <span>{% if is_bookmarked %}Saved{% else %}Save{% endif %}</span>
+            </button>
+        </div>
+        <div class="exercise-meta">
+            <span><strong>Duration:</strong> {{ exercise.duration }} min</span>
+            <span><strong>Calories:</strong> {{ exercise.calories_burned }} kcal</span>
+        </div>
+        <div class="exercise-description"><h2>Description</h2><p>{{ exercise.description }}</p></div>
+        <a href="{% url 'workouts:category_list' %}" class="back-btn">Back to Categories</a>
+    </div>
+</div>
+<script>
+function toggleBookmark(btn) {
+    fetch(`/workouts/exercise/${btn.dataset.exerciseId}/bookmark/`, {method:'POST',headers:{'X-CSRFToken':'{{ csrf_token }}'}})
+    .then(r=>r.json()).then(d=>{btn.classList.toggle('bookmarked',d.bookmarked);btn.querySelector('svg').setAttribute('fill',d.bookmarked?'currentColor':'none');btn.querySelector('span').textContent=d.bookmarked?'Saved':'Save';});
+}
+</script>
+{% endblock %}
