@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Your Metrics - PulseGym{% endblock %}
+
+{% block content %}
+<div class="onboarding-container">
+    <div class="onboarding-progress">
+        <div class="progress-bar">
+            <div class="progress-fill" style="width: 75%;"></div>
+        </div>
+        <span class="step-indicator">Step {{ step }} of 4</span>
+    </div>
+
+    <div class="onboarding-header">
+        <h1>What are your metrics?</h1>
+        <p>Help us calculate your personalized fitness plan</p>
+    </div>
+
+    <form method="post" class="onboarding-form">
+        {% csrf_token %}
+        
+        <div class="metrics-section">
+            <div class="metric-card">
+                <label class="metric-label">
+                    <i class="fas fa-ruler-vertical"></i> Height
+                </label>
+                <div class="metric-display">
+                    <span id="height-value">170</span>
+                    <span class="metric-unit">cm</span>
+                </div>
+                <input type="range" name="height" id="height-slider" class="slider-input"
+                       min="100" max="250" value="{{ form.height.value|default:170 }}"
+                       oninput="document.getElementById('height-value').textContent = this.value">
+                <div class="slider-labels">
+                    <span>100 cm</span>
+                    <span>250 cm</span>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <label class="metric-label">
+                    <i class="fas fa-weight"></i> Weight
+                </label>
+                <div class="metric-display">
+                    <span id="weight-value">70</span>
+                    <span class="metric-unit">kg</span>
+                </div>
+                <input type="range" name="weight" id="weight-slider" class="slider-input"
+                       min="30" max="200" value="{{ form.weight.value|default:70 }}"
+                       oninput="document.getElementById('weight-value').textContent = this.value">
+                <div class="slider-labels">
+                    <span>30 kg</span>
+                    <span>200 kg</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="onboarding-actions">
+            <a href="{% url 'onboarding_age' %}" class="btn btn-outline">
+                <i class="fas fa-arrow-left"></i> Back
+            </a>
+            <button type="submit" class="btn btn-primary">
+                Continue <i class="fas fa-arrow-right"></i>
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const heightSlider = document.getElementById('height-slider');
+    const weightSlider = document.getElementById('weight-slider');
+    document.getElementById('height-value').textContent = heightSlider.value;
+    document.getElementById('weight-value').textContent = weightSlider.value;
+});
+</script>
+{% endblock %}
