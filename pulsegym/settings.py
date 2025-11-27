@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 from decouple import config
 
+# Correctly define BASE_DIR to point to the project root
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = config('SECRET_KEY', default='your-secret-key-here')
@@ -35,7 +36,8 @@ ROOT_URLCONF = 'pulsegym.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],
+        # Ensure the DIRS path is correct
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -52,19 +54,17 @@ TEMPLATES = [
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.oracle',
-        'NAME': config('DB_NAME', default='xe'),
-        'USER': config('DB_USER', default='system'),
-        'PASSWORD': config('DB_PASSWORD', default=''),
-        'HOST': config('DB_HOST', default='localhost'),
-        'PORT': config('DB_PORT', default='1521'),
+        'NAME': f"{config('DB_HOST', default='localhost')}:{config('DB_PORT', default='1521')}/{config('DB_NAME', default='XEPDB1')}",
+        'USER': config('DB_USER', default='pulsegym'),
+        'PASSWORD': config('DB_PASSWORD', default='pulsegym123'),
     }
 }
 
 AUTH_USER_MODEL = 'accounts.User'
 
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [BASE_DIR / 'static']
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

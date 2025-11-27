@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Your Progress - PulseGym{% endblock %}
+
+{% block content %}
+<div class="progress-container">
+    <header class="page-header">
+        <h1>Your Progress</h1>
+        <p class="subtitle">Track your weight, view key stats, and manage your saved workouts.</p>
+    </header>
+
+    <!-- KPIs -->
+    <div class="kpi-grid">
+        <div class="kpi-card">
+            <div class="kpi-icon"><i class="fas fa-weight"></i></div>
+            <div class="kpi-value">{{ latest_weight|default:'--' }} kg</div>
+            <div class="kpi-label">Current Weight</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-icon"><i class="fas fa-ruler-vertical"></i></div>
+            <div class="kpi-value">{{ profile.height|default:'--' }} cm</div>
+            <div class="kpi-label">Height</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-icon"><i class="fas fa-flag-checkered"></i></div>
+            <div class="kpi-value">{{ start_weight|default:'--' }} kg</div>
+            <div class="kpi-label">Starting Weight</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-icon"><i class="fas fa-bookmark"></i></div>
+            <div class="kpi-value">{{ bookmarked_exercises.count }}</div>
+            <div class="kpi-label">Saved Workouts</div>
+        </div>
+    </div>
+
+    <!-- Main Progress Section -->
+    <div class="progress-main-grid">
+        <!-- Weight Chart -->
+        <div class="progress-card chart-card">
+            <h3>Weight History</h3>
+            <canvas id="weightChart"></canvas>
+        </div>
+
+        <!-- Add Weight Entry -->
+        <div class="progress-card form-card">
+            <h3>Log Today's Weight</h3>
+            <form method="post" class="progress-form">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="weight">Current Weight (kg)</label>
+                    <input type="number" step="0.1" name="weight" id="weight" class="form-input" placeholder="e.g., 75.5" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-full">
+                    <i class="fas fa-plus"></i> Add Entry
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Saved Workouts -->
+    <div class="bookmarks-section">
+        <h2>Your Saved Workouts</h2>
+        {% if bookmarked_exercises %}
+            <div class="workout-grid">
+                {% for bookmark in bookmarked_exercises %}
+                    <a href="{% url 'workouts:video_player' bookmark.exercise.pk %}" class="workout-card-link">
+                        <div class="workout-card">
+                            <h3>{{ bookmark.exercise.title }}</h3>
+                            <p>{{ bookmark.exercise.category.name }}</p>
+                        </div>
+                    </a>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="no-content-message">You haven't saved any workouts yet. Start exploring!</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('weightChart').getContext('2d');
+    
+    const weightDates = {{ weight_dates|safe }};
+    const weightValues = {{ weight_values|safe }};
+
+    if (weightValues.length > 0) {
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: weightDates,
+                datasets: [{
+                    label: 'Weight (kg)',
+                    data: weightValues,
+                    borderColor: 'rgba(30, 58, 95, 1)',
+                    backgroundColor: 'rgba(30, 58, 95, 0.1)',
+                    fill: true,
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: false
+                    }
+                }
+            }
+        });
+    } else {
+        // Optional: Display a message if no data is available
+        const canvas = document.getElementById('weightChart');
+        const p = document.createElement('p');
+        p.innerText = 'No weight entries yet. Add your first entry to see your progress!';
+        p.style.textAlign = 'center';
+        p.style.marginTop = '2rem';
+        canvas.parentElement.appendChild(p);
+    }
+});
+</script>
+{% endblock %}

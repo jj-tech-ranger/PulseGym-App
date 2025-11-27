@@ -11,17 +11,17 @@
 <body>
     <!-- Navigation -->
     <nav class="navbar">
-        <a href="{% url 'home' %}" class="navbar-brand">
+        <a href="{% url 'core:home' %}" class="navbar-brand">
             <i class="fas fa-heartbeat"></i> PulseGym
         </a>
         <div class="nav-links">
             {% if user.is_authenticated %}
-            <a href="{% url 'home' %}"><i class="fas fa-home"></i></a>
-            <a href="{% url 'workouts:list' %}"><i class="fas fa-dumbbell"></i></a>
-            <a href="{% url 'nutrition:meals' %}"><i class="fas fa-utensils"></i></a>
-            <a href="{% url 'profile' %}"><i class="fas fa-user"></i></a>
+            <a href="{% url 'core:home' %}"><i class="fas fa-home"></i></a>
+            <a href="{% url 'workouts:category_list' %}"><i class="fas fa-dumbbell"></i></a>
+            <a href="{% url 'nutrition:daily_view' %}"><i class="fas fa-utensils"></i></a>
+            <a href="{% url 'accounts:profile' %}"><i class="fas fa-user"></i></a>
             {% else %}
-            <a href="{% url 'login' %}" class="btn btn-outline">Login</a>
+            <a href="{% url 'accounts:login' %}" class="btn btn-outline">Login</a>
             {% endif %}
         </div>
     </nav>

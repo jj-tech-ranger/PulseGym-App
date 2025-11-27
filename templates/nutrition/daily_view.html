@@ -1,37 +1,71 @@
 {% extends 'base.html' %}
-{% block title %}Meal Plans - PulseGym{% endblock %}
+{% load static %}
+
+{% block title %}Nutrition Plans - PulseGym{% endblock %}
+
 {% block content %}
 <div class="nutrition-container">
-    <header class="page-header"><h1>Daily Meal Plan</h1>
-        {% if meal_plan %}<p class="calorie-target">Target: {{ meal_plan.caloric_target }} calories</p>{% endif %}
+    <header class="page-header">
+        <h1>Daily Meal Ideas</h1>
+        <p class="subtitle">Discover delicious meals to fuel your fitness journey.</p>
     </header>
+
+    <!-- Tab Navigation -->
     <div class="meal-tabs">
-        <button class="tab-btn active" onclick="showTab('breakfast')">Breakfast</button>
-        <button class="tab-btn" onclick="showTab('lunch')">Lunch</button>
-        <button class="tab-btn" onclick="showTab('dinner')">Dinner</button>
+        <button class="tab-btn active" onclick="showTab('breakfast')">
+            <i class="fas fa-coffee"></i> Breakfast
+        </button>
+        <button class="tab-btn" onclick="showTab('lunch')">
+            <i class="fas fa-sun"></i> Lunch
+        </button>
+        <button class="tab-btn" onclick="showTab('dinner')">
+            <i class="fas fa-moon"></i> Dinner
+        </button>
     </div>
-    {% for meal_type, meal_list in meals.items %}
-    <div id="{{ meal_type }}" class="meal-content {% if meal_type == 'breakfast' %}active{% endif %}">
-        <div class="meal-grid">
-            {% for meal in meal_list %}
-            <div class="meal-card">
-                {% if meal.image_url %}<img src="{{ meal.image_url }}" alt="{{ meal.name }}">{% endif %}
-                <div class="meal-info"><h3>{{ meal.name }}</h3>
-                    <span class="calories">{{ meal.calories }} cal</span>
-                    <span class="prep-time">{{ meal.prep_time }} min</span>
+
+    <!-- Tab Content -->
+    {% for meal_type, meals in grouped_meals.items %}
+        <div id="{{ meal_type }}" class="meal-content {% if meal_type == 'breakfast' %}active{% endif %}">
+            {% if meals %}
+                <div class="meal-grid">
+                    {% for meal in meals %}
+                    <div class="meal-card">
+                        <div class="meal-card-image">
+                            <img src="{{ meal.image_url }}" alt="{{ meal.name }}">
+                            {% if 'Loss' in meal.meal_plan.name %}
+                                <span class="plan-badge loss">Weight Loss</span>
+                            {% elif 'Gain' in meal.meal_plan.name %}
+                                <span class="plan-badge gain">Muscle Gain</span>
+                            {% else %}
+                                <span class="plan-badge maint">Maintenance</span>
+                            {% endif %}
+                        </div>
+                        <div class="meal-card-body">
+                            <h3>{{ meal.name }}</h3>
+                            <div class="meal-meta">
+                                <span><i class="fas fa-fire-alt"></i> {{ meal.calories }} kcal</span>
+                                <span><i class="fas fa-clock"></i> {{ meal.prep_time }} min</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
                 </div>
-            </div>
-            {% empty %}<p class="no-meals">No meals added yet</p>{% endfor %}
+            {% else %}
+                <p class="no-content-message">No {{ meal_type }} meals available yet.</p>
+            {% endif %}
         </div>
-    </div>
     {% endfor %}
 </div>
+{% endblock %}
+
+{% block extra_js %}
 <script>
 function showTab(tab) {
     document.querySelectorAll('.meal-content').forEach(c => c.classList.remove('active'));
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     document.getElementById(tab).classList.add('active');
-    event.target.classList.add('active');
+    // Find the button with the correct onclick attribute and activate it
+    document.querySelector(`.tab-btn[onclick="showTab('${tab}')"]`).classList.add('active');
 }
 </script>
 {% endblock %}

@@ -5,36 +5,29 @@ from .models import User, Profile
 
 class PulseSignupForm(UserCreationForm):
     """Custom signup form for PulseGym"""
-    email = forms.EmailField(
-        required=True,
-        widget=forms.EmailInput(attrs={
-            'class': 'form-input',
-            'placeholder': 'Enter your email'
-        })
-    )
     first_name = forms.CharField(
         max_length=30,
         required=True,
-        widget=forms.TextInput(attrs={
-            'class': 'form-input',
-            'placeholder': 'First name'
-        })
+        widget=forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'First name'})
     )
     last_name = forms.CharField(
         max_length=30,
         required=True,
-        widget=forms.TextInput(attrs={
-            'class': 'form-input',
-            'placeholder': 'Last name'
-        })
+        widget=forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Last name'})
     )
 
-    class Meta:
+    class Meta(UserCreationForm.Meta):
         model = User
-        fields = ('email', 'first_name', 'last_name', 'password1', 'password2')
+        fields = ('first_name', 'last_name', 'email')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        # Override the default email field to make it required and styled
+        self.fields['email'] = forms.EmailField(
+            required=True,
+            widget=forms.EmailInput(attrs={'class': 'form-input', 'placeholder': 'Enter your email'})
+        )
+        # Update password field placeholders
         self.fields['password1'].widget.attrs.update({
             'class': 'form-input',
             'placeholder': 'Create password'
@@ -44,15 +37,21 @@ class PulseSignupForm(UserCreationForm):
             'placeholder': 'Confirm password'
         })
 
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        # Set username to be the same as the email
+        user.username = self.cleaned_data['email']
+        user.first_name = self.cleaned_data['first_name']
+        user.last_name = self.cleaned_data['last_name']
+        if commit:
+            user.save()
+        return user
+
 
 class OnboardingFormStep1(forms.ModelForm):
     """Onboarding step 1: Gender selection"""
-    GENDER_CHOICES = [
-        ('male', 'Male'),
-        ('female', 'Female'),
-    ]
     gender = forms.ChoiceField(
-        choices=GENDER_CHOICES,
+        choices=Profile.GENDER_CHOICES,
         widget=forms.RadioSelect(attrs={'class': 'gender-radio'})
     )
 
@@ -114,25 +113,12 @@ class OnboardingFormStep3(forms.ModelForm):
 
 class OnboardingFormStep4(forms.ModelForm):
     """Onboarding step 4: Fitness goal selection"""
-    GOAL_CHOICES = [
-        ('lose_weight', 'Lose Weight'),
-        ('build_muscle', 'Build Muscle'),
-        ('stay_fit', 'Stay Fit'),
-        ('improve_endurance', 'Improve Endurance'),
-    ]
     goal = forms.ChoiceField(
-        choices=GOAL_CHOICES,
+        choices=Profile.GOAL_CHOICES,
         widget=forms.RadioSelect(attrs={'class': 'goal-radio'})
     )
-    
-    ACTIVITY_CHOICES = [
-        ('sedentary', 'Sedentary'),
-        ('light', 'Light Activity'),
-        ('moderate', 'Moderate Activity'),
-        ('active', 'Very Active'),
-    ]
     activity_level = forms.ChoiceField(
-        choices=ACTIVITY_CHOICES,
+        choices=Profile.ACTIVITY_CHOICES,
         widget=forms.Select(attrs={'class': 'form-select'})
     )
 

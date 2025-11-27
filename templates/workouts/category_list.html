@@ -1,48 +1,125 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Workout Categories - PulseGym{% endblock %}
+{% block title %}Workout Library - PulseGym{% endblock %}
 
 {% block content %}
 <div class="category-container">
     <header class="page-header">
-        <h1>Workout Categories</h1>
-        <p class="subtitle">Choose your fitness level</p>
+        <h1>Workout Library</h1>
+        <p class="subtitle">Find the perfect workout to match your fitness level and goals.</p>
     </header>
-    
-    <div class="category-grid">
-        {% for category in categories %}
-        <div class="category-card {{ category.level }}">
-            <div class="category-header">
-                <div class="category-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M6.5 6.5h11M6.5 17.5h11M4 12h16"/>
-                    </svg>
+
+    <!-- Tab Navigation -->
+    <div class="level-tabs">
+        <button class="level-tab-btn active" data-level="beginner">Beginner</button>
+        <button class="level-tab-btn" data-level="intermediate">Intermediate</button>
+        <button class="level-tab-btn" data-level="advanced">Advanced</button>
+    </div>
+
+    <!-- Tab Content -->
+    {% for level, categories in grouped_categories.items %}
+        <div id="level-{{ level }}" class="level-content {% if level == 'beginner' %}active{% endif %}">
+            {% if categories %}
+                <div class="category-grid">
+                    {% for category in categories %}
+                    <div class="category-card">
+                        <div class="category-card-header">
+                            <h3>{{ category.name }}</h3>
+                            <div class="category-calories">
+                                <i class="fas fa-fire-alt"></i>
+                                <span>{{ category.total_calories|default:0 }} kcal</span>
+                            </div>
+                        </div>
+                        <div class="category-card-body">
+                            <p>{{ category.description|default:"Explore exercises in this category." }}</p>
+                        </div>
+                        <div class="category-card-footer">
+                            <button class="btn-view-exercises" data-loaded="false">
+                                <span class="arrow"><i class="fas fa-chevron-down"></i></span>
+                                View {{ category.exercises.count }} Exercises
+                            </button>
+                        </div>
+                        <div class="exercise-list-container">
+                            <!-- Exercises will be loaded here via JS -->
+                            {% for exercise in category.exercises.all %}
+                                <a href="{% url 'workouts:video_player' exercise.pk %}" class="exercise-item" style="display:none;">
+                                    <span class="exercise-title">{{ exercise.title }}</span>
+                                    <span class="exercise-duration">{{ exercise.duration }} min</span>
+                                </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endfor %}
                 </div>
-                <span class="level-badge">{{ category.get_level_display }}</span>
-            </div>
-            <h2>{{ category.name }}</h2>
-            <p>{{ category.description|default:"Explore exercises" }}</p>
-            <div class="exercise-count">{{ category.exercises.count }} exercises</div>
-            
-            <div class="exercise-list">
-                {% for exercise in category.exercises.all|slice:":3" %}
-                <a href="{% url 'workouts:video_player' exercise.pk %}" class="exercise-item">
-                    <span class="exercise-title">{{ exercise.title }}</span>
-                    <span class="exercise-duration">{{ exercise.duration }} min</span>
-                </a>
-                {% empty %}
-                <p class="no-exercises">No exercises yet</p>
-                {% endfor %}
-            </div>
-            
-            {% if category.exercises.count > 3 %}
-            <a href="#" class="view-all-btn">View all {{ category.exercises.count }} exercises</a>
+            {% else %}
+                <p class="no-content-message">No categories available for this level yet.</p>
             {% endif %}
         </div>
-        {% empty %}
-        <p class="no-categories">No categories available yet.</p>
-        {% endfor %}
-    </div>
+    {% endfor %}
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const levelTabs = document.querySelectorAll('.level-tab-btn');
+    const levelContents = document.querySelectorAll('.level-content');
+    const exerciseButtons = document.querySelectorAll('.btn-view-exercises');
+
+    // Tab switching logic
+    levelTabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            levelTabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            
+            const targetLevel = tab.dataset.level;
+            levelContents.forEach(content => {
+                if (content.id === `level-${targetLevel}`) {
+                    content.classList.add('active');
+                } else {
+                    content.classList.remove('active');
+                }
+            });
+        });
+    });
+
+    // Exercise accordion logic
+    exerciseButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const card = button.closest('.category-card');
+            const container = card.querySelector('.exercise-list-container');
+            const exercises = container.querySelectorAll('.exercise-item');
+            const arrow = button.querySelector('.arrow i');
+
+            const isExpanded = container.classList.contains('expanded');
+
+            if (isExpanded) {
+                container.style.maxHeight = '0px';
+                arrow.style.transform = 'rotate(0deg)';
+                container.classList.remove('expanded');
+            } else {
+                // Calculate the total height of the exercises
+                let totalHeight = 0;
+                exercises.forEach(ex => {
+                    ex.style.display = 'flex'; // Temporarily display to measure height
+                    totalHeight += ex.offsetHeight;
+                    ex.style.display = ''; // Hide again before transition
+                });
+                
+                container.style.maxHeight = totalHeight + 'px';
+                arrow.style.transform = 'rotate(180deg)';
+                container.classList.add('expanded');
+                
+                // Show exercises after a short delay to allow for smooth transition
+                setTimeout(() => {
+                    if (container.classList.contains('expanded')) {
+                        exercises.forEach(ex => ex.style.display = 'flex');
+                    }
+                }, 150);
+            }
+        });
+    });
+});
+</script>
 {% endblock %}

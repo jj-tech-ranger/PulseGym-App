@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ page_title }} - PulseGym{% endblock %}
+
+{% block content %}
+<div class="placeholder-container" style="text-align: center; padding: 4rem 1rem;">
+    <header class="page-header">
+        <h1>{{ page_title }}</h1>
+        <p class="subtitle" style="font-size: 1.2rem; color: #6c757d;">{{ page_description }}</p>
+    </header>
+    <a href="{% url 'core:home' %}" class="btn btn-primary" style="margin-top: 2rem;">
+        <i class="fas fa-arrow-left"></i> Back to Home
+    </a>
+</div>
+{% endblock %}

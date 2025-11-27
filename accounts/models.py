@@ -1,10 +1,11 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.utils import timezone
 
 class User(AbstractUser):
     email = models.EmailField(unique=True)
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username']
+    REQUIRED_FIELDS = []
 
     class Meta:
         db_table = 'accounts_user'
@@ -34,3 +35,16 @@ class Profile(models.Model):
 
     class Meta:
         db_table = 'accounts_profile'
+
+class WeightEntry(models.Model):
+    """Stores a user's weight at a specific point in time."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='weight_entries')
+    weight = models.FloatField()
+    date_recorded = models.DateField(default=timezone.now)
+
+    class Meta:
+        ordering = ['date_recorded']
+        verbose_name_plural = 'Weight Entries'
+
+    def __str__(self):
+        return f"{self.user.username} - {self.weight}kg on {self.date_recorded}"
